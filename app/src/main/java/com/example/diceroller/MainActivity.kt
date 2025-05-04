@@ -15,9 +15,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.diceroller.ui.theme.DiceRollerTheme
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +53,7 @@ fun DiceRollerApp() {
 
 @Composable
 fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
-    var result by remember { mutableIntStateOf(1) }
+    var diceFace by remember { mutableStateOf(R.drawable.dice_6) }
     var rotationAngle by remember { mutableFloatStateOf(0f) }
     val animatedRotation by animateFloatAsState(
         targetValue =  rotationAngle,
@@ -60,30 +62,30 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
             easing = FastOutSlowInEasing
         )
     )
-    val imageResource = when (result) {
-        1 -> R.drawable.dice_1
-        2 -> R.drawable.dice_2
-        3 -> R.drawable.dice_3
-        4 -> R.drawable.dice_4
-        5 -> R.drawable.dice_5
-        else -> R.drawable.dice_6
+    val diceFaces = listOf(
+        R.drawable.dice_1,
+        R.drawable.dice_2,
+        R.drawable.dice_3,
+        R.drawable.dice_4,
+        R.drawable.dice_5,
+        R.drawable.dice_6
+    )
+    LaunchedEffect(rotationAngle) {
+        delay(100)
+        diceFace = diceFaces.random()
     }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(imageResource),
-            contentDescription = result.toString(),
+            painter = painterResource(diceFace),
+            contentDescription = diceFace.toString(),
             modifier = Modifier
                 .rotate(animatedRotation)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            rotationAngle += 1080f
-            result = (1..6).random()
-
-        }) {
+        Button(onClick = { rotationAngle += 1080f }) {
             Text(stringResource(R.string.roll))
         }
     }
