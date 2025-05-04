@@ -3,6 +3,9 @@ package com.example.diceroller
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +16,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +52,14 @@ fun DiceRollerApp() {
 @Composable
 fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     var result by remember { mutableIntStateOf(1) }
+    var rotationAngle by remember { mutableFloatStateOf(0f) }
+    val animatedRotation by animateFloatAsState(
+        targetValue =  rotationAngle,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = FastOutSlowInEasing
+        )
+    )
     val imageResource = when (result) {
         1 -> R.drawable.dice_1
         2 -> R.drawable.dice_2
@@ -61,10 +74,16 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     ) {
         Image(
             painter = painterResource(imageResource),
-            contentDescription = result.toString()
+            contentDescription = result.toString(),
+            modifier = Modifier
+                .rotate(animatedRotation)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { result = (1..6).random() }) {
+        Button(onClick = {
+            rotationAngle += 1080f
+            result = (1..6).random()
+
+        }) {
             Text(stringResource(R.string.roll))
         }
     }
